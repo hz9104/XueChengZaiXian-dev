@@ -1,0 +1,157 @@
+//宝石概率：1/宝石分母
+let game_base = （技术恐惧症，标准星的成就等级） >= 5 ? 9000 : 10000; //灵魂宝石概率+10%
+//如果标准星是银或以下，宝石基础值是10000，金就是9000
+
+//global.portal.fortress.pity表示距离上次获得宝石的时间，然而pity的字面意思是同情……
+
+let gem_chance = game_base - global.portal.fortress.pity; //时间越长，宝石概率越大
+
+//gem_chance表示宝石分母
+
+if ( （当前宇宙是邪恶宇宙） && （暗能量数量大于1）)
+{
+    let de = global.race.Dark.count; //这个变量是暗能量的数量
+
+    if (global.race.Harmony.count > 0) //如果和谐水晶数量大于0
+    {
+        de *= 1 + (global.race.Harmony.count * 0.01); //每个和谐水晶增加暗能量的效果1%
+    }
+    gem_chance -= Math.round(Math.log2(de) * 2);//分母减去（ log2(暗能量数量)+1）
+}
+
+if ( （好像是传送门科技？） && （有开着的吸引器）)
+{
+    for (let i=0; i<（开着的吸引器数量）; i++)
+    {
+        gem_chance = Math.round(gem_chance * 0.92);
+        // 每个吸引器将宝石分母累乘0.92
+    }
+}
+if (拥有[幽灵]特质)
+{
+    gem_chance = Math.round(gem_chance * ((100 - traits.ghostly.vars[2]) / 100));
+    //分母累乘[幽灵]特质因子
+}
+
+let dead = 0;
+let terminators = （开启的战斗机器人数量） ? （开启的战斗机器人数量） : 0;
+
+//terminators变量表示开启的战斗机器人数量
+
+let failed_drop = false; //掉落失败的布尔值，初值是假
+
+let wounded = 0;
+
+if (（伤兵） > （勘探者？） - （堡垒驻军总数）)
+{
+    wounded = （伤兵） - (勘探者 - 堡垒驻军总数);
+    
+    if (wounded > 堡垒驻军总数 - (巡逻队数量 * 巡逻队大小)) //其实就是驻扎在堡垒的士兵数量
+    {
+        wounded -= 堡垒驻军总数 - (巡逻队数量 * 巡逻队大小);
+        wounded /= 巡逻队数量;
+    }
+    else 
+    {
+        wounded = 0;
+    }
+}
+let brkpnt = +(wounded % 1).toFixed(10);
+//每个巡逻队触发一次宝石掉落
+for (let i=0; i<global.portal.fortress.patrols; i++)
+{
+    let hurt = brkpnt > (1 / global.portal.fortress.patrols * i) ? Math.ceil(wounded) : Math.floor(wounded);
+    //地狱的威胁越高，进入宝石掉落分支的可能越高？
+    if (Math.rand(0,恶魔威胁值) >= 0~999随机数)
+    {
+        let pat_size = global.portal.fortress.patrol_size; //patsize表示一个巡逻队的大小
+
+        //增加战斗机器人，应该是能减少士兵死亡，但是和宝石掉落没直接关系
+
+        if (terminators > 0) //战斗机器人增强一支巡逻队
+        {
+            pat_size += 是否研发“增强型战斗机器人”科技 ? 2 : 1;//是为2，否则为1
+            terminators--;
+        }
+        let pat_rating = Math.round(armyRating(pat_size,'hellArmy',hurt)); //巡逻队战斗评级
+        
+        let demons = Math.rand(（ (恶魔威胁值 / 50) 向下取整）,（ (恶魔威胁值 /10) 向下取整）);
+        //demons变量应该是巡逻队一次遭遇恶魔的数量
+        
+        //这个if里面原来的代码是“global.race['blood_thirst']”，结合里面的东西个人猜测是关于[嗜血]特质的一个值
+        if (拥有[嗜血]特质？)
+        {
+            嗜血值 += Math.rand(0,Math.ceil(demons / 10)); //0~恶魔战力之间的一个随机数
+            if (嗜血值 > 1000000) 嗜血值 = 1000000;
+        }
+        //上面这个if好像是关于鲨鱼人嗜血的东西，和宝石无关
+
+        //下面的if应该是判定是否爆宝石的
+        if (Math.rand(0,如果有 [变色龙] 或 [难以捉摸] 特质，值为50，否则为30) === 0)
+        {
+
+            //这个分支是不可能爆宝石的分支，概率为1/50（有那俩特质），1/30（没有那俩特质）
+
+            dead += casualties(Math.round(demons * (1 + Math.random() * 3)),0,true); //本轮恶魔死亡的数量？
+            let remain = demons - Math.round(pat_rating / 2); //猜测remain表示本轮没有被击杀的恶魔数量
+            if (remain > 0) //恶魔有剩余
+            {
+                恶魔威胁值 -= demons - remain;
+                统计数据的恶魔击杀数量+= demons - remain; 
+                if (灵魂锻炉打开了)
+                {
+                    锻炉灵魂数 += demons - remain;
+                }
+            }
+            else //内容同上
+            {
+                恶魔威胁值 -= demons;
+                统计数据的恶魔击杀数量 += demons;
+                if (灵魂锻炉打开了)
+                {
+                    锻炉灵魂数 += demons;
+                }
+            }
+        }
+        else//可能爆宝石的分支
+        {
+            let remain = demons - pat_rating; //这里的剩余恶魔直接就是遭遇恶魔数减去巡逻队评级
+            if (remain > 0) //有剩余会判定士兵伤亡
+            {
+                恶魔威胁值 -= demons - remain;
+                统计列表恶魔击杀数 += demons - remain;
+
+                if (灵魂锻炉打开了)
+                {
+                    锻炉灵魂数 += demons - remain;
+                }
+
+                dead += casualties(remain,pat_armor,false); //似乎是判定士兵伤亡，那个pat armor的变量应该是士兵的护甲
+            }
+            else
+            {
+                恶魔威胁值 -= demons;
+                统计列表恶魔击杀数 += demons;
+                if (灵魂锻炉打开了)
+                {
+                    锻炉灵魂数 += demons;
+                }
+            }
+            //宝石概率 = 1/宝石分母
+            if (Math.rand(0,gem_chance) === 0)
+            {
+                global.resource.Soul_Gem.amount++; //增加1灵魂宝石
+                global.portal.fortress.pity = 0;//重置“同情值”
+                if (从来没有获得过灵魂宝石)
+                {
+                    global.resource.Soul_Gem.display = true; //这个判定只会发生一次
+                    messageQueue(loc('portal_first_gem'),'info',false,['progress','hell']);
+                    //播报“巡逻队发现一个灵魂宝石”事件
+                }
+            }
+            else
+            {
+                failed_drop = true; //这个巡逻队没有掉落宝石
+            }
+        }
+    }
