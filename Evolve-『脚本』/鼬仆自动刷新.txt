@@ -1,0 +1,47 @@
+// ==UserScript==
+// @name         鼬仆自动刷新
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        http://localhost:82
+// @match        https://g8hh.github.io/evolve/
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+    var i = 0;
+    var WC = window.setInterval(pageReload, 2000);
+
+    function pageReload()
+    {
+        i++;
+        if(i > 250)
+        {
+            i = 0;
+            let WC_temp = WC;
+            WC = window.setInterval(pageReload, 5000);
+            clearInterval(WC_temp);
+            return;
+        }
+
+        let servants = (()=>{try{return evolve.global.race.servants.used}catch(e){return 0}})();
+        //console.log(servants())
+        //console.log(servants)
+        if(isNaN(servants))
+        {
+            //console.log("NaN出现，3秒后刷新")
+            setTimeout(()=>{window.location.reload();}, 3000);
+            // 刷新当前页面
+        }
+        else
+        {
+            //鼬仆已经出现，不需要刷新
+            //console.log("无需刷新")
+            //clearInterval(WC)
+            return
+        }
+    }
+
+})();

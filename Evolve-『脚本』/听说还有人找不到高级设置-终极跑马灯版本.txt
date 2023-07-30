@@ -1,0 +1,37 @@
+// ==UserScript==
+// @name         醒目高级设置-跑马灯版本
+// @namespace    http://tampermonkey.net/
+// @version      0.2
+// @description  听说还有人找不到高级设置（注意自己电脑性能）
+// @author       You
+// @match        http://localhost:82/
+// @match        http://evolve.super/
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    //颜色数组，可自行增减
+    var colorList = ['Red', 'orange', 'yellow', 'green', '#00FFFF', 'blue', 'purple'];
+    var shifting = 0;
+    //颜色数量自动获取
+    var colorCount = colorList.length;
+    function getRandomColor() {
+        var colorString = 'linear-gradient(to right bottom';
+        //循环获取颜色列表，拼接css设置
+        for (var i = 0; i < colorCount; i++) {
+            colorString += ',';
+            colorString += colorList[(i+shifting)%colorCount];
+        }
+        //每次偏移+1, mod colorCount
+        shifting = (shifting + 1) % colorCount;
+        colorString += ')';
+        //console.log(colorString);
+        return colorString;
+    }
+
+    setInterval(function () {
+        $(".inactive-row").css("background-image", getRandomColor());
+    }, 100);
+})();

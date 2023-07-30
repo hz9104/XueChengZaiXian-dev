@@ -1,0 +1,27 @@
+// ==UserScript==
+// @name         自动导出存档-evolve
+// @namespace    http://tampermonkey.net/
+// @version      0.3
+// @description  try to take over the world!
+// @author       You
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @icon         https://www.google.com/s2/favicons?domain=cnblogs.com
+// @grant        none
+// ==/UserScript==
+
+(function() {
+	window.setInterval(function(){
+	  var refreshHours = new Date().getHours();
+	  var refreshMin = new Date().getMinutes();
+	  var refreshSec = new Date().getSeconds();
+	  //下面3个分别代表小时,分钟,秒
+	  //需要浏览器自己设置默认保存而不弹出询问框，并允许保存多个文件
+	  //当前设置每15分钟保存，下方两行注释表示 每小时0分和30分 或 每天13点 保存，可按需选择或自行修改
+	  if((parseInt(refreshMin)%15 == 0) && refreshSec=='0'){
+          //((refreshMin=='0' || refreshMin=='30') && refreshSec=='0')
+          //(refreshHours=='13' && refreshMin=='0' && refreshSec=='0')
+		document.querySelector(".importExport > button:nth-child(4)").click();
+	  }
+	}, 1000);
+})();

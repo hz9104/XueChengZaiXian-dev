@@ -1,0 +1,33 @@
+// ==UserScript==
+// @name         装配工厂woker版
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        http://localhost:82/
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// @require      https://code.jquery.com/jquery-3.4.1.min.js
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Your code here...
+    $('head').append('<script id="worker" type="app/worker"> setInterval(function () { postMessage("1"); }, 2000); </script>');
+
+    var blob = new Blob([document.querySelector('#worker').textContent]);
+    var url = window.URL.createObjectURL(blob);
+    var w = new Worker(url);
+
+    //var w = new Worker("http://localhost/Evolve/SeqAssemblyWorker.js");
+
+    w.onmessage = function(e){
+        var i = 0;
+        while (i < 30) {
+            document.querySelector("#city-assembly > a.button> span.aTitle").click();
+            i++;
+        }
+  };
+})();

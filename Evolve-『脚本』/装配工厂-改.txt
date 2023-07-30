@@ -1,0 +1,52 @@
+// ==UserScript==
+// @name         装配工厂woker版
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        http://localhost:82/
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// @require      https://code.jquery.com/jquery-3.6.0.min.js
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Your code here...
+    $('head').append('<script id="worker" type="app/worker">var i=0;function a(){i++;if(i>250){var c=b;i=0;b=setInterval(a,1000);clearInterval(c);return;}postMessage("1");}var b=setInterval(a,1000);</script>');
+
+    var assembly = (()=>{try{return window.evolve.actions.city.assembly}catch(e){return null}})(); //装配工厂
+    var horseshoe = (()=>{try{return window.evolve.actions.city.horseshoe}catch(e){return null}})(); //锻造马蹄铁
+    //var basic_housing = window.evolve.actions.city.basic_housing; //基础房屋
+
+    var blob = new Blob([document.querySelector('#worker').textContent]);
+    var url = window.URL.createObjectURL(blob);
+    var w = new Worker(url);
+
+    w.onmessage = function(e){
+        //console.log(e.data);
+        var population = evolve.global.resource.custom.amount;
+        if(assembly != null && population > 0 && population < 3000) {
+            // 有装配工厂且人数小于3000，每次造10个人口
+            for (let i = 0; i < 10; i++) {
+                assembly.action();
+            }
+        }
+        if(horseshoe != null) {
+            // 有马蹄铁且马蹄铁数量小于5时，造5个马蹄铁
+            let horseshoeNum = window.evolve.global.resource.Horseshoe.amount;
+            for (let i = 0; i < 5 && horseshoeNum < 5; i++) {
+                horseshoe.action();
+            }
+        }
+        /*let baseHouseNum = window.evolve.global.city.basic_housing.count;
+        if(baseHouseNum < 60) {
+            // 基础房屋小于60个时，每次造5个房屋，默认不启用（doge）
+            for (let i = 0; i < 5; i++) {
+                basic_housing.action();
+            }
+        }*/
+  };
+})();

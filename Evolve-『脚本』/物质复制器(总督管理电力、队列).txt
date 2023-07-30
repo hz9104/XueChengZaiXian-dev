@@ -1,0 +1,129 @@
+// ==UserScript==
+// @name         物质复制器（总督管理电量）
+// @namespace    http://tampermonkey.net/
+// @version      0.3.2
+// @description  调整物质复制器，由总督管理电量
+// @author       You
+// @match        http://localhost:82
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    var WC = window.setInterval(ReplicatorController, 1000);
+    var i = 0;
+
+    function ReplicatorController()
+    {
+        i++;
+        if(i > 200)
+        {
+            i = 0;
+            let temp = WC;
+            WC = window.setInterval(ReplicatorController, 1000);
+            clearInterval(temp);
+            return;
+        }
+
+
+        let tarRes, keepPower, maxPower;
+        /*
+        tarRes为目标资源，即希望物质复制器生产何种资源，可通过在控制台输入evolve.global.resource查看，请输入英文，并用英文双引号，例如石头为 "Stone"
+        keepPowre为预留的电量，即需要留下多少电量以供其他建筑使用，请输入非负整数
+        maxPower为最多能使用的电量，即物质复制器最多可以使用多少电量，请输入非负整数
+        */
+
+        //下方为示例，意为当金属玻璃工厂数量等于0并且金属玻璃数量小于10000时，最多使用100MW的电制造金属玻璃，最少保留10MW的电(可直接用于白飞搓形而上学所需金属玻璃)
+        if((()=>{try{return evolve.global.galaxy.vitreloy_plant.count}catch(e){return 0}})() == 0 && evolve.global.resource.Vitreloy.amount < 10000)
+        {
+            tarRes = "Vitreloy"; keepPower = 10; maxPower = 100; //keepPower和maxPower不需要变动时可else后进行设置，此处可以不写
+        }
+        else
+        {
+            tarRes = "Stone"; keepPower = 100; maxPower = 100000;
+        }
+        //不能小于0（不需要调整的话也可以直接改成需要的值，如下方注释所示，此时可不在上面对相关值进行设置）
+        //maxPower = 100000000;
+        //keepPower = 100
+        keepPower = keepPower < 0 ? 0 : keepPower;
+        maxPower = maxPower < 0 ? 0 : maxPower;
+
+        /*
+        以上为判断条件，可自行添加if{}else if{}else if{}...设置更多条件，最终的默认条件建议关闭物质复制器（最大电量归零），防止意外
+        if语句中的判断条件请自行添加，建议使用try{}catch{}防bug，实例如下
+        例如：(()=>{try{return evolve.global.city.bank.count}catch(e){return 0}})()表示银行的数量，其他条件请自行通过控制台探索
+        */
+
+        //当前物质复制器制造的资源种类
+        let displayNow = (()=>{try{return evolve.global.race.replicator.res}catch(e){return "None"}})();
+
+        let Replicator = (()=>{try{return document.getElementById("iReplicator").__vue__}catch(e){return undefined}})();
+
+        if(Replicator == undefined)
+        {
+            return
+        }
+
+        //总督控制电量消耗
+        let govOffice = (()=>{try{return document.getElementById("govOffice").__vue__}catch(e){return undefined}})();
+
+        if(govOffice == undefined)
+        {
+            return
+        }
+        govOffice.setTask("replicate",0)
+
+        let event = document.createEvent('HTMLEvents');
+        event.initEvent('input', false, true);
+
+        let tConfigs = document.querySelectorAll(".tConfig");
+        let repConfigPowOn = tConfigs[8].querySelectorAll(".storage .chk")[0].querySelector("input");
+        let repConfigPowCap = tConfigs[8].querySelectorAll(".storage")[0].querySelectorAll(".b-numberinput input")[0];
+        let repConfigPowBuffer = tConfigs[8].querySelectorAll(".storage")[0].querySelectorAll(".b-numberinput input")[1];
+
+        if(repConfigPowOn.checked == false) //启用“自动调节使用的电力”
+        {
+            repConfigPowOn.click();
+        }
+
+        repConfigPowCap.value = maxPower; //设置“至多使用电力”
+        repConfigPowCap.dispatchEvent(event);
+        repConfigPowBuffer.value = keepPower; //设置“可用电力缓冲值”
+        repConfigPowBuffer.dispatchEvent(event);
+
+        let repConfigResQue = tConfigs[8].querySelectorAll(".storage")[1].querySelectorAll("input")[0];
+        let repConfigResNeg = tConfigs[8].querySelectorAll(".storage")[1].querySelectorAll("input")[1];
+        let repConfigResCap = tConfigs[8].querySelectorAll(".storage")[1].querySelectorAll("input")[2];
+
+        if(repConfigResQue.checked == true && evolve.global.queue.queue.length == 0) //没有建筑队列，不启用“优先生产队列中缺少的资源”
+        {
+            repConfigResQue.click();
+        }
+        if(repConfigResQue.checked == false && evolve.global.queue.queue.length > 0) //有建筑队列，启用“优先生产队列中缺少的资源”
+        {
+            repConfigResQue.click();
+        }
+        if(repConfigResNeg.checked == true) //不启用“优先生产负产量资源”
+        {
+            repConfigResNeg.click();
+        }
+        if(repConfigResCap.checked == true) //不启用“储量达上限时切换”
+        {
+            repConfigResCap.click();
+        }
+
+        //切换物质复制器资源
+        if(repConfigResQue.checked == false) //在不启用“优先生产队列中缺少的资源”时进行切换
+        {
+            if(Replicator.avail(tarRes) == true && displayNow != tarRes)
+            {
+                Replicator.setVal(tarRes);
+            }
+        }
+    }
+
+
+})();
