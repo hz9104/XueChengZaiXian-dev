@@ -1,0 +1,72 @@
+// ==UserScript==
+// @name         物质复制器（仅限金属玻璃）
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  在金属玻璃出现后及金属玻璃工厂建造前，使用物质复制器制造金属玻璃。（电量过于离谱可能导致游戏卡死，慎用！！！）
+// @author       You
+// @match        http://localhost:82
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    var WC = window.setInterval(ReplicatorController, 2000);
+    var i = 0;
+
+    function ReplicatorController()
+    {
+        i++;
+        if(i > 200)
+        {
+            i = 0;
+            let temp = WC;
+            WC = window.setInterval(ReplicatorController, 2000);
+            clearInterval(temp);
+            return;
+        }
+
+        let element = (()=>{try{return document.getElementById("iReplicator").__vue__}catch(e){return undefined}})();
+
+        let VitCount = (()=>{try{return evolve.global.galaxy.vitreloy_plant.count}catch(e){return 0}})();
+        if(VitCount != 0)
+        {
+            clearInterval(WC);
+            let usedPower = (()=>{try{return evolve.global.race.replicator.pow}catch(e){return 0}})();
+            for(let j = 0;j < usedPower; j++)
+            {
+                element.less();
+            }
+            return;
+        }
+
+        //当前物质复制器制造的资源种类
+        let displayNow = (()=>{try{return evolve.global.race.replicator.res}catch(e){return "None"}})();
+        //console.log(displayNow)
+        let availPower = (()=>{try{return evolve.global.city.power}catch(e){return 0}})();
+
+        if(element == undefined)
+        {
+            return
+        }
+
+        if(element.avail("Vitreloy") == true && displayNow != "Vitreloy")
+        {
+            element.setVal("Vitreloy");
+        }
+
+        for(let j = 0;j < availPower - 10 && availPower > 10; j++)
+        {
+            element.more();
+        }
+
+        for(let j = 0;j < 5 - availPower && availPower < 5; j++)
+        {
+            element.less();
+        }
+    }
+
+
+})();

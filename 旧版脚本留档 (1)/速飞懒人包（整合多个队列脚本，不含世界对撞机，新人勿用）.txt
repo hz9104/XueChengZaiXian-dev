@@ -1,0 +1,272 @@
+// ==UserScript==
+// @name         速飞懒人包
+// @namespace    http://tampermonkey.net/
+// @version      1.0
+// @description  try to take over the world!
+// @author       EvolveQQGroup
+// @match        https://g8hh.github.io/evolve/
+// @match        https://wdjwxh.github.io/Evolve-Scripting-Edition/
+// @match        https://wdjwxh.gitee.io/evolve-scripting-edition/
+// @match        https://tmvictor.github.io/Evolve-Scripting-Edition/
+// @match        https://pmotschmann.github.io/Evolve/
+// @match        http://localhost:82/
+// @grant        none
+// @require      https://code.jquery.com/jquery-3.4.1.min.js
+// ==/UserScript==
+
+(function($) {
+    'use strict';
+    //机甲
+
+    var WC1_times = 0
+    var WC1;
+    var WC2_times = 0
+    var WC2;
+    var WC3_times = 0
+    var WC3;
+    var WC4_times = 0
+    var WC4;
+    var WC5_times = 0
+    var WC5;
+
+    //星际之门初始化
+    WC1 = window.setInterval(SeqInterstellar_stargate, 1000);
+    console.log("星际之门初始化成功");
+
+    function SeqInterstellar_stargate()
+    {
+		WC1_times = WC1_times + 1;
+
+		//判断是否需要初始化
+		if(WC1_times > 250)
+		{
+			var WC1_temp = WC1
+			WC1_times = 0;
+			WC1 = window.setInterval(SeqInterstellar_stargate, 1000);
+			clearInterval(WC1_temp)
+			return;
+		}
+        try
+        {
+            if(evolve.global.interstellar.stargate.count >= 200)
+            {
+                clearInterval(WC1)
+                return;
+            }
+
+            if(document.querySelector("#interstellar-stargate > a.button> span.count").innerHTML < 1)
+            {
+                //console.log("小于条件");
+                return;
+            }
+
+        }
+        catch(err)
+        {
+            return;
+        }
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.x25}));
+
+        document.querySelector("#interstellar-stargate > a.button > span.aTitle").click();
+
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.x25}));
+
+        //console.log("目前数量:" + document.querySelector("#interstellar-stargate > a.button> span.count").innerHTML)
+    }
+
+    //戴森网初始化
+    WC2 = window.setInterval(SeqInterstellar_dyson, 1000);
+    console.log("戴森网初始化成功");
+
+    function SeqInterstellar_dyson()
+    {
+		WC2_times = WC2_times + 1;
+
+		//判断是否需要初始化
+		if(WC2_times > 250)
+		{
+			var WC2_temp = WC2
+			WC2_times = 0;
+			WC2 = window.setInterval(SeqInterstellar_dyson, 1000);
+			clearInterval(WC2_temp)
+			return;
+		}
+        try
+        {
+            if(evolve.global.interstellar.dyson.count >= 100)
+            {
+                clearInterval(WC2)
+                return;
+            }
+
+            if(document.querySelector("#interstellar-dyson > a.button> span.count").innerHTML < 1)
+            {
+                //console.log("小于条件");
+                return;
+            }
+
+        }
+        catch(err)
+        {
+            return;
+        }
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.x100}));
+
+        document.querySelector("#interstellar-dyson > a.button > span.aTitle").click();
+
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.x100}));
+
+        //console.log("目前数量:" + document.querySelector("#interstellar-dyson > a.button> span.count").innerHTML)
+    }
+
+    //轨道电梯初始化
+    WC3 = window.setInterval(SeqInterstellar_space_elevator, 1000);
+    console.log("轨道电梯初始化成功");
+
+    function SeqInterstellar_space_elevator()
+    {
+		WC3_times = WC3_times + 1;
+
+		//判断是否需要初始化
+		if(WC3_times > 250)
+		{
+			var WC3_temp = WC3
+			WC3_times = 0;
+			WC3 = window.setInterval(SeqInterstellar_space_elevator, 1000);
+			clearInterval(WC3_temp)
+			return;
+		}
+        try
+        {
+            if(evolve.global.interstellar.space_elevator.count >= 100)
+            {
+                clearInterval(WC3)
+                return;
+            }
+
+            if(document.querySelector("#interstellar-space_elevator > a.button> span.count").innerHTML < 1)
+            {
+                //console.log("小于条件");
+                return;
+            }
+
+        }
+        catch(err)
+        {
+            return;
+        }
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.x25}));
+
+        document.querySelector("#interstellar-space_elevator > a.button > span.aTitle").click();
+
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.x25}));
+
+        //console.log("目前数量:" + document.querySelector("#interstellar-space_elevator > a.button> span.count").innerHTML)
+    }
+
+    //重力穹顶初始化
+    WC4 = window.setInterval(SeqInterstellar_gravity_dome, 1000);
+    console.log("重力穹顶初始化成功");
+
+    function SeqInterstellar_gravity_dome()
+    {
+		WC4_times = WC4_times + 1;
+
+		//判断是否需要初始化
+		if(WC4_times > 250)
+		{
+			var WC4_temp = WC4
+			WC4_times = 0;
+			WC4 = window.setInterval(SeqInterstellar_gravity_dome, 1000);
+			clearInterval(WC4_temp)
+			return;
+		}
+        try
+        {
+            if(evolve.global.interstellar.gravity_dome.count >= 100)
+            {
+                clearInterval(WC4)
+                return;
+            }
+
+            if(document.querySelector("#interstellar-gravity_dome > a.button> span.count").innerHTML < 1)
+            {
+                //console.log("小于条件");
+                return;
+            }
+
+        }
+        catch(err)
+        {
+            return;
+        }
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.x25}));
+
+        document.querySelector("#interstellar-gravity_dome > a.button > span.aTitle").click();
+
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.x25}));
+
+        //console.log("目前数量:" + document.querySelector("#interstellar-gravity_dome > a.button> span.count").innerHTML)
+    }
+
+    //飞升装置初始化
+    WC5 = window.setInterval(SeqInterstellar_ascension_machine, 1000);
+    console.log("飞升装置初始化成功");
+
+    function SeqInterstellar_ascension_machine()
+    {
+		WC5_times = WC5_times + 1;
+
+		//判断是否需要初始化
+		if(WC5_times > 250)
+		{
+			var WC5_temp = WC5
+			WC5_times = 0;
+			WC5 = window.setInterval(SeqInterstellar_ascension_machine, 1000);
+			clearInterval(WC5_temp)
+			return;
+		}
+        try
+        {
+            if(evolve.global.interstellar.ascension_machine.count >= 100)
+            {
+                clearInterval(WC5)
+                return;
+            }
+
+            if(document.querySelector("#interstellar-ascension_machine > a.button> span.count").innerHTML < 1)
+            {
+                //console.log("小于条件");
+                return;
+            }
+
+        }
+        catch(err)
+        {
+            return;
+        }
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.x25}));
+
+        document.querySelector("#interstellar-ascension_machine > a.button > span.aTitle").click();
+
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.q}));
+        document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.x25}));
+
+        //console.log("目前数量:" + document.querySelector("#interstellar-ascension_machine > a.button> span.count").innerHTML)
+    }
+
+})(jQuery);

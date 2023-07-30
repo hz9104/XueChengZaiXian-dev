@@ -1,0 +1,104 @@
+// ==UserScript==
+// @name         灌注自动造搜集
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  5M物资前造搜集，5M物资后移交给主脚本
+// @author       You
+// @match        http://localhost:82
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// ==/UserScript==
+
+//其实我觉得没有任何卵用，该卡一样卡，你们可以试试
+
+(function() {
+    'use strict';
+
+    var WC;
+    WC = window.setInterval(autoCollector, 250);
+    var WC_times = 0;
+
+    function autoCollector()
+    {
+        WC_times = WC_times +1;
+        if(WC_times > 500)
+        {
+            var WC_temp = WC;
+            WC_times = 0;
+            WC = window.setInterval(autoCollector, 250);
+            clearInterval(WC_temp);
+            return;
+        }
+
+        let scriptSetting  = JSON.parse(localStorage.getItem('settings'))
+        if(scriptSetting["autoMech"] == true)
+        {
+            var array = document.getElementsByTagName("input");
+
+            for(var i = 0; i < array.length; i++)
+            {
+                if(array[i].type == "checkbox")
+                {
+                    if(array[i].className == "script_autoMech")
+                    {
+                        if (evolve.actions.portal.prtl_spire.mechbay.cost.Supply() <= 5000000){
+                            array[i].click();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(scriptSetting["autoMech" == true]) return;
+
+        let bp = document.getElementById("mechLab").getElementsByClassName("dropdown dropdown-menu-animation is-hoverable is-mobile-modal");
+
+        var mech = bp[0].getElementsByClassName("dropdown-content")[0].childNodes
+        for(var j = 0; j < mech.length; j++) {
+            if(mech[j].getAttribute("data-val") == "collector")
+            {
+                mech[j].click();
+                break;
+            }
+        }
+
+        if(evolve.global.portal.mechbay.blueprint.infernal)
+        {
+            document.querySelector("#mechAssembly > div:nth-child(2) > label > input[type=checkbox]").click();
+        }
+        if(evolve.global.blood.prepared >= 3)
+        {
+            document.querySelector("#mechAssembly > div:nth-child(2) > label > input[type=checkbox]").click();
+        }
+
+        if (evolve.actions.portal.prtl_spire.mechbay.cost.Supply() <= 5000000 && (evolve.global.portal.mechbay.max > evolve.global.portal.mechbay.bay)) //造搜集直到5M物资
+        {
+            document.getElementById("mechAssembly").__vue__.build();
+
+        }
+
+        if (evolve.actions.portal.prtl_spire.mechbay.cost.Supply() > 5000000) //5M后将控制权移交主脚本
+        {
+            var array1 = document.getElementsByTagName("input");
+            if(scriptSetting["autoMech"] == false)
+            {
+                for(var l = 0; l < array1.length; l++)
+                {
+                    if(array1[l].type == "checkbox")
+                    {
+                        if(array1[l].className == "script_autoMech")
+                        {
+                            array1[l].click();
+                            document.querySelector("#portal-mechbay > a.button").click();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+})();
+

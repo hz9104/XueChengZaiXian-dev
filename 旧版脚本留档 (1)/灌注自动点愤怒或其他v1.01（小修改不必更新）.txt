@@ -1,0 +1,65 @@
+// ==UserScript==
+// @name         灌注自动点愤怒
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  自动升级鲜血
+// @author       You
+// @match        http://localhost:82
+// @match        https://g8hh.github.io/evolve/
+// @match        https://pmotschmann.github.io/Evolve/
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    var WC;
+    WC = window.setInterval(autoBlood, 1000);
+    var WC_times = 0;
+
+    function autoBlood()
+    {
+        WC_times = WC_times +1;
+        if(WC_times > 1000)
+        {
+            var WC_temp = WC;
+            WC_times = 0;
+            WC = window.setInterval(autoBlood, 1000);
+            clearInterval(WC_temp);
+            return;
+        }
+
+        let days = evolve.global.stats.days;
+        let at = evolve.global.prestige.Artifact.count; //遗物数量
+        let bs = evolve.global.prestige.Blood_Stone.count; //血石碎片数量
+        let bldlvl = evolve.global.blood.wrath; //愤怒等级，可更改为其他鲜血升级
+
+        if (days >= 200 && days <= 210) //在游戏日200-210天启动，可自行更改，200天还开不了arpa的估计也告别灌注了
+        {
+            try
+            {
+                if (bs > 0 && at >= 1 && bldlvl < 100) //保留 0 血石、1 遗物、至多点到100级愤怒。请自己调整到自己想要的等级
+                {
+                    document.getElementById("blood-wrath").__vue__.action();
+                    document.dispatchEvent(new KeyboardEvent("keydown", {key: evolve.global.settings.keyMap.x10})); //一次最多点10级
+                    document.dispatchEvent(new KeyboardEvent("keyup", {key: evolve.global.settings.keyMap.x10}));
+                    return;
+                }
+            }
+            catch(err)
+            {
+                return;
+            }
+        }
+
+    }
+})();
+
+/*
+其他鲜血升级id：
+
+工匠：artisan
+照明：illuminate
+灵魂陷阱：attract
+嗜血：lust
+*/
